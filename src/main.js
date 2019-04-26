@@ -41,10 +41,10 @@ async function main() {
             }
         }).then(([u, c]) => u).catch((e) => { throw e });
 
-        user.equity += 10;
-        await user.save().then(() => {});
-
         if (!msg.content.startsWith(config.prefix)) {
+            user.equity += 10;
+            await user.save().then(() => {});
+            
             return false;
         }
 
