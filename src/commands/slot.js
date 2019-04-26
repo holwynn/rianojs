@@ -20,6 +20,7 @@ module.exports = {
         let winner = false;
         let prize = 0;
         let content = '';
+        let color = 'AQUA';
 
         if (user.equity < price) {
             return msg.channel.send(`Costo: ${price} pascos. Actualmente tenes ${user.equity}`);
@@ -48,6 +49,8 @@ module.exports = {
             user.equity += prize;
             await user.save().then(() => {});
             content += `**${msg.author.username}** gana ${prize} pascos 🎉`;
+            color = 'GREEN';
+
         } else {
             user.equity -= price;
             await user.save().then(() => {});
@@ -58,7 +61,7 @@ module.exports = {
             title: 'Slots',
             description: content
         });
-        embed.setColor('AQUA');
+        embed.setColor(color);
 
         msg.channel.send(embed);
     }

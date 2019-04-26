@@ -1,0 +1,17 @@
+CREATE DATABASE rianojs;
+
+USE rianojs;
+
+CREATE TABLE users (
+    id            integer auto_increment,
+    discord_id    varchar(255),
+    username      varchar(255) not null,
+    discriminator integer not null,
+    avatar        varchar(255) not null,
+    equity        int not null default 0,
+    createdAt     TIMESTAMP default NOW(),
+    updatedAt     TIMESTAMP default NOW(),
+    primary key (id)
+);
+
+INSERT INTO users (discord_id, equity) VALUES ('185222406133121025', 0);

@@ -37,6 +37,9 @@ async function main() {
             },
             defaults: {
                 discord_id: msg.author.id,
+                username: msg.author.username,
+                discriminator: msg.author.discriminator,
+                avatar: msg.author.avatar,
                 equity: 0
             }
         }).then(([u, c]) => u).catch((e) => { throw e });
@@ -44,7 +47,7 @@ async function main() {
         if (!msg.content.startsWith(config.prefix)) {
             user.equity += 10;
             await user.save().then(() => {});
-            
+
             return false;
         }
 

@@ -14,8 +14,25 @@ const User = orm.define('user', {
         primaryKey: true,
         autoIncrement: true
     },
-    discord_id: Sequelize.STRING,
-    equity: Sequelize.INTEGER
+    discord_id: {
+        type: Sequelize.STRING,
+        notNull: true
+    },
+    username: {
+        type: Sequelize.STRING,
+        notNull: true
+    },
+    discriminator: {
+        type: Sequelize.INTEGER,
+        notNull: true
+    },
+    avatar: {
+        type: Sequelize.STRING
+    },
+    equity: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    }
 });
 
 module.exports = {
