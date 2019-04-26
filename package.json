@@ -1,0 +1,17 @@
+{
+  "name": "rianojs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "bot": "node src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "mysql2": "^1.6.5",
+    "sequelize": "^5.7.5"
+  }
+}
