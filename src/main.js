@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { users } = require('./database.js');
+const { botUrl } = require('./utils.js');
 
 async function main() {
     const config = {
@@ -14,16 +15,16 @@ async function main() {
     const commandFiles = fs.readdirSync('./src/commands')
         .filter(file => file.endsWith('.js'));
 
-    console.log(commandFiles);
-
-    for (const file of commandFiles) {
-        const command = require(`./commands/${file}`);
+    for (const commandFile of commandFiles) {
+        const commandClass = require(`./commands/${commandFile}`);
+        const command = new commandClass()
         client.commands.set(command.name, command);
     }
     
     client.on('ready', () => {
         client.user.setActivity('Fumando redpoint');
         console.log('Riano is ready.');
+        console.log(`Add me to your server: ${botUrl(client.user.id)}`);
     });
 
     client.on('message', async (msg) => {
@@ -42,7 +43,7 @@ async function main() {
                 avatar: msg.author.avatar,
                 equity: 0
             }
-        }).then(([u, c]) => u).catch((e) => { throw e });
+        }).then(([result]) => result).catch((e) => { throw e });
 
         if (!msg.content.startsWith(config.prefix)) {
             user.equity += 10;
@@ -61,7 +62,8 @@ async function main() {
         const command = client.commands.get(commandName);
 
         try {
-            command.execute(msg, args, user)
+            command.setOptions({ msg: msg, args: args, user: user });
+            command.execute();
         } catch(e) {
             console.log(e);
         }

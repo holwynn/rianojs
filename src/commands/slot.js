@@ -1,68 +1,71 @@
-const { RichEmbed } = require('discord.js');
+const Command = require('../Command');
 
-const emojis = [
-    '🗡',
-    '😃',
-    '🤔',
-    '❤',
-    '🦊',
-    '🐷',
-    '🍇',
-    '🍒',
-    '💣',
-    '🎉',
-];
+class Slot extends Command {
+    constructor() {
+        super();
 
-module.exports = {
-    name: 'slot',
-    async execute(msg, args, user) {
-        const price = 50;
-        let winner = false;
-        let prize = 0;
-        let content = '';
-        let color = 'AQUA';
+        this.name = 'slot';
+        this.price = 50;
+        this.winner = false;
+        this.prize = 0;
+        this.emojis = [
+            '🗡',
+            '😃',
+            '🤔',
+            '❤',
+            '🦊',
+            '🐷',
+            '🍇',
+            '🍒',
+            '💣',
+            '🎉',
+        ];
+    }
 
-        if (user.equity < price) {
-            return msg.channel.send(`Costo: ${price} pascos. Actualmente tenes ${user.equity}`);
+    async execute() {
+        if (this.user.equity < this.price) {
+            return this.insufficientMoney();
         }
 
         const a = Math.floor(Math.random() * 10);
         const b = Math.floor(Math.random() * 10);
         const c = Math.floor(Math.random() * 10);
-        const roll = `${emojis[a]} : ${emojis[b]} : ${emojis[c]}`
+        const roll = `${this.emojis[a]} : ${this.emojis[b]} : ${this.emojis[c]}`
 
         // roll 3 of the same
         if (a === b && a === c) {
-            winner = true;
-            prize = 500;
+            this.winner = true;
+            this.prize = 500;
         }
 
         // roll 2 of the same
-        if ((a === b || b === c || c === a) && winner === false) {
-            winner = true;
-            prize = 100;
+        if ((a === b || b === c || a === c) && this.winner === false) {
+            this.winner = true;
+            this.prize = 100;
         }
 
-        content += `----------------\n${roll}\n----------------\n`;
+        let embedContent = `----------------\n${roll}\n----------------\n`;
 
-        if (winner) {
-            user.equity += prize;
-            await user.save().then(() => {});
-            content += `**${msg.author.username}** gana ${prize} pascos 🎉`;
-            color = 'GREEN';
-
+        if (this.winner) {
+            this.user.equity += this.prize;
+            embedContent += `**${this.user.username}** gana ${this.prize} pascos 🎉`;
         } else {
-            user.equity -= price;
-            await user.save().then(() => {});
-            content += `**${msg.author.username}** pierde ${price} pascos ❌`;
+            this.user.equity -= this.price;
+            embedContent += `**${this.user.username}** pierde ${this.price} pascos ❌`;
         }
 
-        const embed = new RichEmbed({
-            title: 'Slots',
-            description: content
-        });
-        embed.setColor(color);
+        await this.user.save();
 
-        msg.channel.send(embed);
+        return this.embed({
+            title: 'Slots',
+            color: 181818,
+            description: embedContent
+        });
+    }
+
+    insufficientMoney() {
+        return this.send(`Costo: ${this.price} pascos. Actualmente tenes ${this.user.equity}`);
     }
 }
+
+module.exports = Slot;
