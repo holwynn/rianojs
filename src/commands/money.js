@@ -1,6 +1,6 @@
 const Command = require('../Command');
 
-class Pascos extends Command {
+class Money extends Command {
     constructor() {
         super();
         this.name = 'pascos';
@@ -11,4 +11,4 @@ class Pascos extends Command {
     }
 }
 
-module.exports = Pascos;
+module.exports = Money;

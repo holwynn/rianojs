@@ -14,4 +14,11 @@ CREATE TABLE users (
     primary key (id)
 );
 
-INSERT INTO users (discord_id, equity) VALUES ('185222406133121025', 0);
+CREATE TABLE counters (
+    id             integer auto_increment,
+    mateoBased     integer not null default 0,
+    createdAt      TIMESTAMP default NOW(),
+    updatedAt      TIMESTAMP default NOW(),
+    primary key (id)
+);
+

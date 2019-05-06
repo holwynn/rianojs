@@ -15,14 +15,12 @@ class Ranking extends Command {
         });
 
         let pos = 1;
-        let embedContent = '💰 Ranking de pascos 💰\n\n`';
+        let embedContent = '💰 Ranking de pascos 💰\n';
 
         for (const user of rows) {
-            embedContent += `[${pos}] ${user.username} | $${user.equity} \n`;
+            embedContent += `\`[${pos}] ${user.username.padStart(12)} => $${user.equity} \`\n`;
             pos++;
         }
-
-        embedContent += '`';
 
         return this.send(embedContent);
     }

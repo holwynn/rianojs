@@ -1,4 +1,5 @@
 const Command = require('../Command');
+const { log } = require('../utils');
 
 class Slot extends Command {
     constructor() {
@@ -6,8 +7,6 @@ class Slot extends Command {
 
         this.name = 'slot';
         this.price = 50;
-        this.winner = false;
-        this.prize = 0;
         this.emojis = [
             '🗡',
             '😃',
@@ -24,33 +23,38 @@ class Slot extends Command {
 
     async execute() {
         if (this.user.equity < this.price) {
-            return this.insufficientMoney();
+            return this.send(`Costo: ${this.price} pascos. Actualmente tenes ${this.user.equity}`);
         }
+
+        let winner = false;
+        let prize = 0;
 
         const a = Math.floor(Math.random() * 10);
         const b = Math.floor(Math.random() * 10);
         const c = Math.floor(Math.random() * 10);
         const roll = `${this.emojis[a]} : ${this.emojis[b]} : ${this.emojis[c]}`
+        log('debug', `${a} ${b} ${c}`);
 
         // roll 3 of the same
         if (a === b && a === c) {
-            this.winner = true;
-            this.prize = 500;
-        }
-
-        // roll 2 of the same
-        if ((a === b || b === c || a === c) && this.winner === false) {
-            this.winner = true;
-            this.prize = 100;
+            winner = true;
+            prize = 500;
+        } else if (a === b || b === c) {
+            winner = true;
+            prize = 100;
         }
 
         let embedContent = `----------------\n${roll}\n----------------\n`;
 
-        if (this.winner) {
-            this.user.equity += this.prize;
-            embedContent += `**${this.user.username}** gana ${this.prize} pascos 🎉`;
+        let color = 0;
+
+        if (winner) {
+            this.user.equity += prize;
+            color = this.embedColors.green;
+            embedContent += `**${this.user.username}** gana ${prize} pascos 🎉`;
         } else {
             this.user.equity -= this.price;
+            color = this.embedColors.red;
             embedContent += `**${this.user.username}** pierde ${this.price} pascos ❌`;
         }
 
@@ -58,13 +62,9 @@ class Slot extends Command {
 
         return this.embed({
             title: 'Slots',
-            color: 181818,
+            color: color,
             description: embedContent
         });
-    }
-
-    insufficientMoney() {
-        return this.send(`Costo: ${this.price} pascos. Actualmente tenes ${this.user.equity}`);
     }
 }
 

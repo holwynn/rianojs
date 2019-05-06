@@ -1,30 +1,32 @@
-const fs = require('fs');
 const Discord = require('discord.js');
-const { users } = require('./database.js');
-const { botUrl } = require('./utils.js');
+const { findOrCreateUser } = require('./database');
+const { botUrl, compileCommands, log } = require('./utils');
+
+const config = {
+    prefix: process.env.BOT_PREFIX,
+    token: process.env.DISCORD_TOKEN
+}
 
 async function main() {
-    const config = {
-        prefix: process.env.BOT_PREFIX,
-        token: process.env.DISCORD_TOKEN
-    }
-
     const client = new Discord.Client();
     client.commands = new Discord.Collection();
+    client.middlewares = new Discord.Collection();
 
-    const commandFiles = fs.readdirSync('./src/commands')
-        .filter(file => file.endsWith('.js'));
+    const commands = compileCommands();
+    // const middlewares = compileMiddlewares();
 
-    for (const commandFile of commandFiles) {
-        const commandClass = require(`./commands/${commandFile}`);
-        const command = new commandClass()
+    for (const command of commands) {
         client.commands.set(command.name, command);
     }
+
+    // for (const middleware of middlewares) {
+    //     client.middlewares.set(middleware.name, middleware);
+    // }
     
     client.on('ready', () => {
         client.user.setActivity('Fumando redpoint');
-        console.log('Riano is ready.');
-        console.log(`Add me to your server: ${botUrl(client.user.id)}`);
+        log('INFO', 'Riano is ready');
+        log('INFO', `Add me to your server: ${botUrl(client.user.id)}`);
     });
 
     client.on('message', async (msg) => {
@@ -32,22 +34,11 @@ async function main() {
             return;
         }
 
-        const user = await users.findOrCreate({
-            where: { 
-                discord_id: msg.author.id 
-            },
-            defaults: {
-                discord_id: msg.author.id,
-                username: msg.author.username,
-                discriminator: msg.author.discriminator,
-                avatar: msg.author.avatar,
-                equity: 0
-            }
-        }).then(([result]) => result).catch((e) => { throw e });
+        const user = await findOrCreateUser(msg);
 
         if (!msg.content.startsWith(config.prefix)) {
             user.equity += 10;
-            await user.save().then(() => {});
+            await user.save();
 
             return false;
         }
@@ -57,13 +48,13 @@ async function main() {
 
         if (!client.commands.has(commandName)) {
             return false;
-        }
-
-        const command = client.commands.get(commandName);
+        }        
 
         try {
+            const command = client.commands.get(commandName);
             command.setOptions({ msg: msg, args: args, user: user });
             command.execute();
+            log('INFO', `${msg.author.username} used ${command.name}`);
         } catch(e) {
             console.log(e);
         }
